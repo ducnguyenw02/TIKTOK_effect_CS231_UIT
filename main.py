@@ -92,6 +92,11 @@ def neon_background(img):
     glow = np.clip(outlines + blur_strength*blur, 0, 1)
     glow = glow*255
     output = np.where(glow < np.array([50, 50, 50]), img, glow)
+    # output = cv.line(output, (30, 30), (30, output.shape[0]-30), (255,255,255), 10)
+    # output = cv.line(output, (30, 30), (output.shape[1]-30, 30), (255,255,255), 10)
+    # output = cv.line(output, (output.shape[1]-30,30), (output.shape[1]-30, output.shape[0]-30), (255,255,255), 10)
+    # output = cv.line(output, (30, output.shape[0]-30), (output.shape[1]-30, output.shape[0]-30), (255,255,255), 10)
+    # output = cv.circle(output, (int(output.shape[1]/2),int(output.shape[0]/2)), int(output.shape[1]/2-40), (255,255,255), -1)
     return output
 
 def hand(targetImg, x, y, size = None):
