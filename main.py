@@ -79,19 +79,14 @@ def neon_background(img):
 
     eroded = binary_erosion(imarray, iterations=3)
 
-    # Make the outlined rectangles.
     outlines = imarray - eroded
 
-    # Convolve with a Gaussian to effect a blur.
     blur = gaussian_filter(outlines, sigma=5)
 
-    # Make binary images into neon green.
-    # neon_green_rgb = [0.124, 1, 0.0784]
     neon_green_rgb = [0, 1, 0]
     outlines = outlines[:, :, None] * neon_green_rgb
     blur = blur[:, :, None] * neon_green_rgb
 
-    # Combine the images and constrain to [0, 1].
     blur_strength = 3
     glow = np.clip(outlines + blur_strength*blur, 0, 1)
     glow = glow*255
@@ -160,20 +155,20 @@ def circle_magic(image,img_1, img_2, x1, y1, deg, diameter):
 
 
 def draw_devil(image, lanmark, matna, size = 100, x = 100, y = 100):
-    try: 
-        count_5 = _normalized_to_pixel_coordinates(lanmark.landmark[5].x,lanmark.landmark[5].y,image.shape[0],image.shape[1])
-        img_neon = np.zeros((image.shape[0],image.shape[1],3))
-        matna = cv.resize(matna, (int(7*size/10),size))
-        img_neon[count_5[0]:count_5[0]+matna.shape[0],count_5[1]:count_5[1]+matna.shape[1]] = matna
-        # print(str(x) + " " + str(y) + " "+ str(x+matna.shape[0]) + " " + str(y+matna.shape[1]))
-        output = np.where(img_neon < np.array([10, 10, 10]), image, img_neon)
-    except:
-        img_neon = np.zeros((image.shape[0],image.shape[1],3))
-        matna = cv.resize(matna, (int(7*size/10),size))
-        img_neon[x:x+matna.shape[0],y:y+matna.shape[1]] = matna
-        # print(str(x) + " " + str(y) + " "+ str(x+matna.shape[0]) + " " + str(y+matna.shape[1]))
-        output = np.where(img_neon < np.array([10, 10, 10]), image, img_neon)
-        pass
+    # try: 
+    #     count_5 = _normalized_to_pixel_coordinates(lanmark.landmark[5].x,lanmark.landmark[5].y,image.shape[0],image.shape[1])
+    #     img_neon = np.zeros((image.shape[0],image.shape[1],3))
+    #     matna = cv.resize(matna, (int(7*size/10),size))
+    #     img_neon[count_5[0]:count_5[0]+matna.shape[0],count_5[1]:count_5[1]+matna.shape[1]] = matna
+    #     # print(str(x) + " " + str(y) + " "+ str(x+matna.shape[0]) + " " + str(y+matna.shape[1]))
+    #     output = np.where(img_neon < np.array([10, 10, 10]), image, img_neon)
+    # except:
+    img_neon = np.zeros((image.shape[0],image.shape[1],3))
+    matna = cv.resize(matna, (int(7*size/10),size))
+    img_neon[x:x+matna.shape[0],y:y+matna.shape[1]] = matna
+    # print(str(x) + " " + str(y) + " "+ str(x+matna.shape[0]) + " " + str(y+matna.shape[1]))
+    output = np.where(img_neon < np.array([10, 10, 10]), image, img_neon)
+    # pass
     return output
 
 def devil_eye(img, count_5, count_2):
@@ -203,8 +198,8 @@ def devil_eye(img, count_5, count_2):
     glow = np.clip(outlines + blur_strength*blur, 0, 1)
     glow = glow*255
     output = np.where(glow < np.array([50, 50, 50]), img, glow)
-    output = cv.line(output, (count_5[0],count_5[1]), (x,output.shape[1]-20), (255,255,0), 5)
-    output = cv.line(output, (count_2[0],count_2[1]), (x+60,output.shape[1]-20), (255,255,0), 5)
+    # output = cv.line(output, (count_5[0],count_5[1]), (x,output.shape[1]-20), (255,255,0), 5)
+    # output = cv.line(output, (count_2[0],count_2[1]), (x+60,output.shape[1]-20), (255,255,0), 5)
     return output
 
 def DK_circle_magic(frame,magic_circle_cww,magic_circle_cw, lanmark, deg, earthquake,count_earthquake, frame_cols, frame_rows):
@@ -215,17 +210,17 @@ def DK_circle_magic(frame,magic_circle_cww,magic_circle_cw, lanmark, deg, earthq
         count_11 = _normalized_to_pixel_coordinates(lanmark.landmark[11].x,lanmark.landmark[11].y,frame_cols,frame_rows)
         kc19_20 = caculate_distance(count_19[0], count_19[1], count_20[0], count_20[1])
         kc11_12 = caculate_distance(count_11[0], count_11[1], count_12[0], count_12[1])
-        diameter = int(100*kc19_20)
+        diameter = int(10*kc19_20)
 
-        x1 = count_19[0]
-        y1 = count_19[1]
-        if count_20[1] > count_12[1]:
-            frame, deg = circle_magic(frame,magic_circle_cww, magic_circle_cw, count_19[0], count_19[1],deg, diameter)
-            frame, deg = circle_magic(frame,magic_circle_cww, magic_circle_cw, count_20[0], count_20[1],deg, diameter)
-            if count_earthquake % 3 and count_earthquake < 50:
+        x1 = count_20[0]
+        y1 = count_20[1]
+        if count_20[1] > count_12[1] and kc19_20 < 100:
+            # frame, deg = circle_magic(frame,magic_circle_cww, magic_circle_cw, count_19[0], count_19[1],deg, diameter)
+            frame, deg = circle_magic(frame,magic_circle_cww, magic_circle_cw, count_20[0]-100, count_20[1],deg, diameter)
+            if count_earthquake % 3 and count_earthquake < 40:
                 earthquake[:, :-50] = frame[:,50:]
                 frame = earthquake
-            if count_earthquake % 4 and count_earthquake < 50:
+            if count_earthquake % 4 and count_earthquake < 40:
                 earthquake[:-20,:] = frame[20:,:]
                 frame = earthquake
             count_earthquake = count_earthquake + 1
@@ -259,8 +254,10 @@ def DK_neon_eye(frame, lanmark, frame_cols, frame_rows):
         pass
     return frame
 
-def DK_draw_devil(frame, devil_mask, lanmark, frame_cols, frame_rows, count_devil, count_trang):
+def DK_draw_devil(frame, devil_mask, lanmark, frame_cols, frame_rows, count_devil, count_trang, count_earthquake_def):
     # hopden = np.zeros((500,500,3))
+    if count_earthquake_def < 50:
+        return frame, count_devil, count_trang
     try:
         count_20 = _normalized_to_pixel_coordinates(lanmark.landmark[20].x,lanmark.landmark[20].y,frame_cols,frame_rows)
         count_19 = _normalized_to_pixel_coordinates(lanmark.landmark[19].x,lanmark.landmark[19].y,frame_cols,frame_rows)
@@ -269,6 +266,7 @@ def DK_draw_devil(frame, devil_mask, lanmark, frame_cols, frame_rows, count_devi
         count_8 = _normalized_to_pixel_coordinates(lanmark.landmark[8].x,lanmark.landmark[8].y,frame_cols,frame_rows)
         count_7 = _normalized_to_pixel_coordinates(lanmark.landmark[7].x,lanmark.landmark[7].y,frame_cols,frame_rows)
         count_10 = _normalized_to_pixel_coordinates(lanmark.landmark[10].x,lanmark.landmark[10].y,frame_cols,frame_rows)
+        count_12 = _normalized_to_pixel_coordinates(lanmark.landmark[12].x,lanmark.landmark[12].y,frame_cols,frame_rows)
         count_9 = _normalized_to_pixel_coordinates(lanmark.landmark[9].x,lanmark.landmark[9].y,frame_cols,frame_rows)
         # count_12 = _normalized_to_pixel_coordinates(lanmark.landmark[12].x,lanmark.landmark[12].y,frame_cols,frame_rows)
 
@@ -284,16 +282,18 @@ def DK_draw_devil(frame, devil_mask, lanmark, frame_cols, frame_rows, count_devi
             frame = cv.circle(frame, (count_2[0], count_2[1]), 10, (255,0,0), -1)
             frame = devil_eye(frame, count_5, count_2)
         # print(str(count_5[0]))
-        # if count_devil == 0:
-        #     frame = draw_devil(frame, lanmark, devil_mask, int(kc87*2.2), count_8[1]-int(kc105*2), count_8[0]-int(kc105/1.8))
-        #     # if count_trang % 3 and count_trang < 20:
-        #     #     frame = np.ones((frame.shape[0], frame.shape[1], 3))
-        #     #     frame = frame*255
-        #     # count_trang = count_trang + 1
-        #     return frame, count_devil, count_trang
+        if count_devil == 0:
+            frame = draw_devil(frame, lanmark, devil_mask, int(kc87*2.2), count_8[1]-int(kc105*2), count_8[0]-int(kc105/1.8))
+            if count_trang % 3 and count_trang < 20:
+                frame = np.ones((frame.shape[0], frame.shape[1], 3))
+                frame = frame*255
+            count_trang = count_trang + 1
+            return frame, count_devil, count_trang
         if kc2010 > 60:
-            frame = draw_devil(frame, lanmark, devil_mask, 100, count_20[1], count_20[0])
+            frame = draw_devil(frame, lanmark, devil_mask, 150, count_20[1]-150, count_20[0])
         else:
+            if count_20[0] > count_12[0] and count_20[1] > count_12[1]:
+                return frame, count_devil, count_trang
             count_devil = 0 
 
     except:
@@ -326,6 +326,7 @@ if __name__ == '__main__':
     devil_mask = cv.imread('D:/Github/TIKTOK_effect_CS231_UIT/image/KQmatna.jpg')
     hopden = np.zeros((500,500,3))
     count_earthquake = 1
+    count_earthquake_def = 1
     count_devil = 1
     lenx = 0
     leny = 0
@@ -342,17 +343,22 @@ if __name__ == '__main__':
         a = mp_drawing_styles.get_default_pose_landmarks_style()
         lanmarks = results_pose.pose_landmarks
         c = mp_pose.POSE_CONNECTIONS
-        mp_drawing.draw_landmarks(frame, lanmarks, c, landmark_drawing_spec=a)
+        # mp_drawing.draw_landmarks(frame, lanmarks, c, landmark_drawing_spec=a)
         earthquake = np.zeros((frame.shape[0],frame.shape[1],3))
         # frame, deg, lenx, leny = poses(frame,b, deg, lenx, leny, count_dongdat)
         frame_rows, frame_cols, _ = frame.shape 
         frame = darkfour(frame)
-        # frame, deg, count_earthquake_def = DK_circle_magic(frame,magic_circle_cww, magic_circle_cww, lanmarks, deg, earthquake, count_earthquake, frame_cols, frame_rows)
+        if count_earthquake_def < 80:
+            frame, deg, count_earthquake_def = DK_circle_magic(frame,magic_circle_cww, magic_circle_cww, lanmarks, deg, earthquake, count_earthquake, frame_cols, frame_rows)
         # frame = DK_neon_eye(frame, lanmarks, frame_cols, frame_rows)
-        frame, count_devil_def, count_trang_def = DK_draw_devil(frame, devil_mask, lanmarks, frame_cols, frame_rows, count_devil, count_trang)
-        # count_earthquake = count_earthquake_def
-        count_devil = count_devil_def
-        count_trang = count_trang_def
+            count_earthquake = count_earthquake_def
+        if count_earthquake_def % 3 and count_earthquake_def < 80 and count_earthquake_def >= 70:
+                frame = np.zeros((frame.shape[0], frame.shape[1], 3))
+                # frame = frame*255
+        if count_earthquake_def >= 80:
+            frame, count_devil_def, count_trang_def = DK_draw_devil(frame, devil_mask, lanmarks, frame_cols, frame_rows, count_devil, count_trang, count_earthquake_def)
+            count_devil = count_devil_def
+            count_trang = count_trang_def
         if cv.waitKey(1) ==ord('q'):
             break
         frame = frame[:, :-50]
